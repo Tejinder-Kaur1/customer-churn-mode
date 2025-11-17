@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+  body {
+    background-image: url("static/bg.jpg"); /* <-- your image here */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  form {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+  }
+  
+  #r {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 200px;
+    display: none;
+  }
+  
+  #r.show {
+    display: block;
+  }
+  
+  #r.churn-yes {
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+  }
+  
+  #r.churn-no {
+    background-color: rgba(40, 167, 69, 0.9);
+    color: white;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+
+</head>
+<body>
+
+<form id="f">
+
+  <label>Gender</label><br>
+  <select name="gender">
+    <option>Male</option>
+    <option>Female</option>
+  </select><br><br>
+
+  <label>SeniorCitizen</label><br>
+  <select name="SeniorCitizen">
+    <option value="0">0</option>
+    <option value="1">1</option>
+  </select><br><br>
+
+  <label>tenure</label><br>
+  <input type="number" name="tenure"><br><br>
+
+  <label>MonthlyCharges</label><br>
+  <input type="number" step="0.01" name="MonthlyCharges"><br><br>
+
+  <label>TotalCharges</label><br>
+  <input type="number" step="0.01" name="TotalCharges"><br><br>
+
+  <label>Contract</label><br>
+  <select name="Contract">
+    <option>Month-to-month</option>
+    <option>One year</option>
+    <option>Two year</option>
+  </select><br><br>
+
+  <label>PaymentMethod</label><br>
+  <select name="PaymentMethod">
+    <option>Electronic check</option>
+    <option>Mailed check</option>
+    <option>Bank transfer (automatic)</option>
+    <option>Credit card (automatic)</option>
+  </select><br><br>
+
+  <button>Predict</button>
+</form>
+
+<pre id="r"></pre>
+
+<script>
+  f.onsubmit = async (e)=>{
+    e.preventDefault();
+    const button = f.querySelector('button');
+    button.disabled = true;
+    button.textContent = 'Loading...';
+    
+    let d = Object.fromEntries(new FormData(f).entries());
+
+    // convert numeric fields
+    d.SeniorCitizen = Number(d.SeniorCitizen);
+    d.tenure = Number(d.tenure);
+    d.MonthlyCharges = Number(d.MonthlyCharges);
+    d.TotalCharges = Number(d.TotalCharges);
+
+    try {
+      let j = await fetch('/predict',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(d)
+      }).then(r=>r.json());
+
+      const result = j.churn;
+      const resultDiv = document.getElementById('r');
+      resultDiv.classList.add('show');
+      resultDiv.classList.remove('churn-yes', 'churn-no');
+      
+      if(result === 'Yes') {
+        resultDiv.classList.add('churn-yes');
+        resultDiv.textContent = '⚠️ Customer Likely to Churn';
+      } else {
+        resultDiv.classList.add('churn-no');
+        resultDiv.textContent = '✓ Customer Will Stay';
+      }
+    } catch(error) {
+      document.getElementById('r').textContent = 'Error: ' + error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Predict';
+    }
+  }
+</script>
+
+</body>
+</html>

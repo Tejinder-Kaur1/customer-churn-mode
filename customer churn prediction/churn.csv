@@ -1,0 +1,6 @@
+gender,SeniorCitizen,tenure,MonthlyCharges,TotalCharges,Contract,PaymentMethod,Churn
+Male,0,5,70.5,350.5,Month-to-month,Electronic check,Yes
+Female,1,20,85.0,1700.0,One year,Credit card (automatic),No
+Female,0,10,60.2,602.0,Month-to-month,Mailed check,No
+Male,0,3,55.1,165.3,Month-to-month,Electronic check,Yes
+Female,1,15,95.3,1429.5,Two year,Bank transfer (automatic),No
